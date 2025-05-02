@@ -12,8 +12,8 @@ The console will display the recognized digit from 0 to 9.
 - `number.png` - an example image with a handwritten digit for testing (not included in the repository)
 
 ## Running the project
-python mnist.py --train # for training
-python mnist.py --predict number.png # for prediction
+- python mnist.py --train # for training
+- python mnist.py --predict number.png # for prediction
 
 ## License
 
