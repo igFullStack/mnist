@@ -4,7 +4,8 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-from PIL import Image
+import cv2
+import numpy as np
 import argparse
 
 class CNN(nn.Module):
@@ -37,7 +38,7 @@ def train_model():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    for epoch in range(3):  # 3 эпохи для примера
+    for epoch in range(3):
         for images, labels in train_loader:
             outputs = model(images)
             loss = criterion(outputs, labels)
@@ -54,16 +55,22 @@ def predict_digit(image_path):
     model.load_state_dict(torch.load('mnist_model.pth', map_location=torch.device('cpu')))
     model.eval()
 
-    img = Image.open(image_path).convert('L')
-    transform = transforms.Compose([
-        transforms.Resize((28, 28)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
-    ])
-    img = transform(img).unsqueeze(0)
+    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    if img is None:
+        raise FileNotFoundError(f"Image file '{image_path}' not found or could not be opened.")
+
+    img = cv2.resize(img, (28, 28))
+
+    if np.mean(img) > 127:
+        img = 255 - img
+
+    img = img.astype(np.float32) / 255.0
+    img = (img - 0.5) / 0.5 
+
+    img_tensor = torch.tensor(img).unsqueeze(0).unsqueeze(0)
 
     with torch.no_grad():
-        output = model(img)
+        output = model(img_tensor)
         predicted = torch.argmax(output, dim=1).item()
     return predicted
 
