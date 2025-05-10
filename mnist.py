@@ -36,7 +36,7 @@ def train_model():
 
     model = CNN()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
     for epoch in range(3):
         for images, labels in train_loader:
